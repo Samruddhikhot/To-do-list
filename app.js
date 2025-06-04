@@ -11,4 +11,4 @@
 
     function addTodo() {
         const todoText = todoInput.value.trim();
-        if
+    }
