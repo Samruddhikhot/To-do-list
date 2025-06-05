@@ -1,0 +1,150 @@
+[1mdiff --git a/app.js b/app.js[m
+[1mindex 494f826..b8eb818 100644[m
+[1m--- a/app.js[m
+[1m+++ b/app.js[m
+[36m@@ -1,14 +1,81 @@[m
+[31m- const todoForm = document.querySelector('form');[m
+[31m- const todoInput = document.querySelector('#todo-input');[m
+[31m- const todoListUL = document.querySelector('#todo-list');[m
+[32m+[m[32mconst todoForm = document.querySelector('form');[m
+[32m+[m[32mconst todoInput = document.querySelector('#todo-input');[m
+[32m+[m[32mconst todoListUL = document.querySelector('#todo-list');[m
+[32m+[m[32mconsole.log("todoListUL:", todoListUL);[m
+ [m
+[31m- let allTodos =[];[m
+[32m+[m[32mlet allTodos = getTodos();[m
+[32m+[m[32mupdateTodoList();[m
+ [m
+[31m- todoForm.addEventListener('submit', function(event) {[m
+[32m+[m[32mtodoForm.addEventListener('submit', function (event) {[m
+     event.preventDefault();[m
+     addTodo();[m
+[31m- })[m
+[32m+[m[32m});[m
+ [m
+[31m-    function addTodo() {[m
+[31m-        const todoText = todoInput.value.trim();[m
+[31m-    }[m
+\ No newline at end of file[m
+[32m+[m[32mfunction addTodo() {[m
+[32m+[m[32m    const todoText = todoInput.value.trim();[m
+[32m+[m[32m    if (todoText.length > 0) {[m
+[32m+[m[32m        const todoObject = {[m
+[32m+[m[32m            text: todoText,[m
+[32m+[m[32m            completed: false[m
+[32m+[m[32m        };[m
+[32m+[m[32m        allTodos.push(todoObject);[m
+[32m+[m[32m        saveTodos(); // Save todos *before* updating the list[m
+[32m+[m[32m        updateTodoList(); // Update the list *after* saving[m
+[32m+[m[32m        todoInput.value = '';[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mfunction updateTodoList() {[m
+[32m+[m[32m    todoListUL.innerHTML = '';[m
+[32m+[m[32m    allTodos.forEach((todo, todoIndex) => {[m
+[32m+[m[32m        const todoItem = createTodoItem(todo, todoIndex);[m
+[32m+[m[32m        todoListUL.appendChild(todoItem);[m
+[32m+[m[32m    });[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mfunction createTodoItem(todo, todoIndex) {[m
+[32m+[m[32m    const todoId = "todo-" + todoIndex;[m
+[32m+[m[32m    const todoItem = document.createElement('li');[m
+[32m+[m[32m    todoItem.className = "todo";[m
+[32m+[m[32m    todoItem.innerHTML = `<input type="checkbox" id="${todoId}">[m
+[32m+[m[32m                <label class="custom-checkbox" for="${todoId}">[m
+[32m+[m[32m                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">[m
+[32m+[m[32m                        <path d="M9 16.2l-4.2-4.2-1.4 1.4 5.6 5.6 12-12-1.4-1.4z"></path>[m
+[32m+[m[32m                    </svg>[m
+[32m+[m[32m                </label>[m
+[32m+[m
+[32m+[m[32m                <label for="${todoId}" class="todo-text">${todo.text} </label>[m
+[32m+[m[32m                <button class="delete-todo">[m
+[32m+[m[32m                    <img src="E:\\TO_DO_LIST\\icon\\delete_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.png" alt="delete icon">[m
+[32m+[m[32m                </button>[m
+[32m+[m[32m            `;[m
+[32m+[m
+[32m+[m[32m    const deleteButton = todoItem.querySelector('.delete-todo');[m
+[32m+[m[32m    deleteButton.addEventListener("click", () => {[m
+[32m+[m[32m        deleteTodoItem(todoIndex);[m
+[32m+[m[32m    });[m
+[32m+[m
+[32m+[m[32m    const checkbox = todoItem.querySelector('input');[m
+[32m+[m[32m    checkbox.addEventListener('click', () => {[m
+[32m+[m[32m        allTodos[todoIndex].completed = checkbox.checked;[m
+[32m+[m[32m        saveTodos();[m
+[32m+[m[32m    });[m
+[32m+[m[32m    checkbox.checked = todo.completed;[m
+[32m+[m[32m    return todoItem;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mfunction deleteTodoItem(todoIndex) {[m
+[32m+[m[32m    allTodos = allTodos.filter((_, i) => i !== todoIndex);[m
+[32m+[m[32m    saveTodos();[m
+[32m+[m[32m    updateTodoList();[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mfunction saveTodos() {[m
+[32m+[m[32m    const todosJson = JSON.stringify(allTodos);[m
+[32m+[m[32m    localStorage.setItem("todos", todosJson);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mfunction getTodos() {[m
+[32m+[m[32m    const todos = localStorage.getItem("todos");[m
+[32m+[m[32m    return todos ? JSON.parse(todos) : [];[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/index.html b/index.html[m
+[1mindex 1be7237..cfd2630 100644[m
+[1m--- a/index.html[m
+[1m+++ b/index.html[m
+[36m@@ -6,7 +6,7 @@[m
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">[m
+     <title>TODO APP</title>[m
+     <link rel="stylesheet" href="style.css">[m
+[31m-    <script src="app.js"></script>[m
+[32m+[m[41m    [m
+ </head>[m
+ [m
+ <body>[m
+[36m@@ -20,36 +20,9 @@[m
+         </form>[m
+         <ul id="todo-list">[m
+             <!-- List items will be added here -->[m
+[31m-            <li class="todo">[m
+[31m-                <input type="checkbox" id="todo-1">[m
+[31m-                <label class="custom-checkbox" for="todo-1">[m
+[31m-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">[m
+[31m-                        <path d="M9 16.2l-4.2-4.2-1.4 1.4 5.6 5.6 12-12-1.4-1.4z"></path>[m
+[31m-                    </svg>[m
+[31m-                </label>[m
+[31m-[m
+[31m-                <label for="todo-1" class="todo-text">web development project </label>[m
+[31m-                <button class="delete-todo">[m
+[31m-                    <img src="E:\TO_DO_LIST\icon\delete_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.png" alt="delete icon">[m
+[31m-                </button>[m
+[31m-[m
+[31m-            </li>[m
+[31m-[m
+[31m-             <li class="todo">[m
+[31m-                <input type="checkbox" id="todo-2">[m
+[31m-                <label class="custom-checkbox" for="todo-2">[m
+[31m-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">[m
+[31m-                        <path d="M9 16.2l-4.2-4.2-1.4 1.4 5.6 5.6 12-12-1.4-1.4z"></path>[m
+[31m-                    </svg>[m
+[31m-                </label>[m
+[31m-[m
+[31m-                <label for="todo-2" class="todo-text">web development project </label>[m
+[31m-                <button class="delete-todo">[m
+[31m-                    <img src="E:\TO_DO_LIST\icon\delete_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.png" alt="delete icon">[m
+[31m-                </button>[m
+[31m-[m
+[31m-            </li>[m
+[32m+[m[41m           [m
+     </div>[m
+[32m+[m[32m    <script src="app.js"></script>[m
+ </body>[m
+ [m
+ </html>[m
+\ No newline at end of file[m
