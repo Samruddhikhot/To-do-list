@@ -1,7 +1,7 @@
 const todoForm = document.querySelector('form');
 const todoInput = document.querySelector('#todo-input');
 const todoListUL = document.querySelector('#todo-list');
-console.log("todoListUL:", todoListUL);
+const addButton = document.querySelector('#add-button');
 
 let allTodos = getTodos();
 updateTodoList();
@@ -19,8 +19,8 @@ function addTodo() {
             completed: false
         };
         allTodos.push(todoObject);
-        saveTodos(); // Save todos *before* updating the list
-        updateTodoList(); // Update the list *after* saving
+        saveTodos();
+        updateTodoList();
         todoInput.value = '';
     }
 }
@@ -37,37 +37,39 @@ function createTodoItem(todo, todoIndex) {
     const todoId = "todo-" + todoIndex;
     const todoItem = document.createElement('li');
     todoItem.className = "todo";
-    todoItem.innerHTML = `<input type="checkbox" id="${todoId}">
-                <label class="custom-checkbox" for="${todoId}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <path d="M9 16.2l-4.2-4.2-1.4 1.4 5.6 5.6 12-12-1.4-1.4z"></path>
-                    </svg>
-                </label>
-
-                <label for="${todoId}" class="todo-text">${todo.text} </label>
-                <button class="delete-todo">
-                    <img src="E:\\TO_DO_LIST\\icon\\delete_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.png" alt="delete icon">
-                </button>
-            `;
+    todoItem.innerHTML = `
+        <input type="checkbox" id="${todoId}" ${todo.completed ? 'checked' : ''}>
+        <label class="custom-checkbox" for="${todoId}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M9 16.2l-4.2-4.2-1.4 1.4 5.6 5.6 12-12-1.4-1.4z"></path>
+            </svg>
+        </label>
+        <label for="${todoId}" class="todo-text">${todo.text}</label>
+        <button class="delete-todo" title="Delete">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M19 6h-2.5l-1-1h-7l-1 1h-2.5v2h15v-2zm-3.5 12c0 1.1-.9 2-2 2s-2-.9-2-2v-8c0-1.1.9-2 2-2s2 .9 2 2v8zm4.5-10h-15v12c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2v-12z"></path>
+            </svg>
+        </button>
+    `;
 
     const deleteButton = todoItem.querySelector('.delete-todo');
     deleteButton.addEventListener("click", () => {
-        deleteTodoItem(todoIndex);
+        todoItem.classList.add('removing');
+        setTimeout(() => {
+            allTodos = allTodos.filter((_, i) => i !== todoIndex);
+            saveTodos();
+            updateTodoList();
+        }, 400); // Match fadeOut animation
     });
 
-    const checkbox = todoItem.querySelector('input');
-    checkbox.addEventListener('click', () => {
+    const checkbox = todoItem.querySelector('input[type="checkbox"]');
+    checkbox.addEventListener('change', () => {
         allTodos[todoIndex].completed = checkbox.checked;
         saveTodos();
+        updateTodoList();
     });
-    checkbox.checked = todo.completed;
-    return todoItem;
-}
 
-function deleteTodoItem(todoIndex) {
-    allTodos = allTodos.filter((_, i) => i !== todoIndex);
-    saveTodos();
-    updateTodoList();
+    return todoItem;
 }
 
 function saveTodos() {
